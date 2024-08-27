@@ -1,54 +1,28 @@
 % Parameters
-m = 1;      % Mass (kg)
-k = 1;      % Spring constant (N/m)
-c = 0.1;    % Damping coefficient (Ns/m)
+m = 1.0;  % mass
+k = 1.0;  % spring constant
+gamma = 0.05;  % damping coefficient
+omega_n = sqrt(k / m);  % natural frequency
+omega = omega_n * 0.99;  % driving frequency close to natural frequency
+F0 = 1.0;  % amplitude of driving force
 
-% Derived parameters
-omega_n = sqrt(k/m); % Natural frequency (rad/s)
-zeta = c / (2*sqrt(m*k)); % Damping ratio
+% Time array
+t = linspace(0, 100, 1000);
 
-% Time vector
-t = linspace(0, 50, 1000);
+% Differential equation solution
+A = F0 ./ sqrt((k - m * omega.^2).^2 + (gamma * omega).^2);
+phi = atan2(gamma * omega, k - m * omega.^2);
+response = A .* sin(omega .* t - phi) .* exp(-gamma .* t / (2 * m));
 
-% Initial and final input frequencies
-omega_start = 0.5 * omega_n;
-omega_end = 1.5 * omega_n;
-
-% Number of steps for frequency transition
-steps = 5;
-
-% Transition time vector
-t_steps = linspace(0, 50, steps + 1);
-
-% Initialize figure
+% Plotting
 figure;
-hold on;
-title('Dynamic Response of Harmonic Oscillator to Varying Input Frequencies');
-xlabel('Time (s)');
-ylabel('Displacement (m)');
+h = plot(t, response);
+xlabel('Time');
+ylabel('Displacement');
+title('Harmonic Oscillator Response Near Resonance');
 
-% Loop through each time segment for animation
-for j = 1:steps
-    % Define the current time segment
-    t_segment = t(t >= t_steps(j) & t < t_steps(j + 1));
-    
-    % Define the current input frequency
-    omega = linspace(omega_start, omega_end, steps + 1);
-    current_omega = omega(j);
-
-    % Sinusoidal input for the current segment
-    F_segment = sin(current_omega * t_segment);
-
-    % Solve the differential equation for the current segment
-    sys = tf(1, [m, c, k]);
-    y_segment = lsim(sys, F_segment, t_segment);
-
-    % Plot the response for the current segment
-    plot(t_segment, y_segment, 'DisplayName', ['\omega_{input} = ', num2str(current_omega)]);
+% Animation
+for i = 1:length(t)
+    set(h, 'YData', response(1:i));
     drawnow;
-    pause(1); % Pause to create the animation effect
 end
-
-% Legend
-legend show;
-hold off;
