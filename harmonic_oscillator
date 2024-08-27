@@ -1,0 +1,35 @@
+% Parameters
+m = 1;      % Mass (kg)
+k = 1;      % Spring constant (N/m)
+c = 0.1;    % Damping coefficient (Ns/m)
+
+% Derived parameters
+omega_n = sqrt(k/m); % Natural frequency (rad/s)
+zeta = c / (2*sqrt(m*k)); % Damping ratio
+
+% Time vector
+t = linspace(0, 50, 1000);
+
+% Input frequencies
+omega_input = linspace(0.5*omega_n, 1.5*omega_n, 5); % Frequencies around the natural frequency
+
+% Response calculation
+figure;
+legendInfo = cell(length(omega_input), 1);
+for i = 1:length(omega_input)
+    omega = omega_input(i);
+    F = sin(omega * t); % Sinusoidal input
+    % Solve the differential equation
+    sys = tf(1, [m, c, k]);
+    y = lsim(sys, F, t);
+    subplot(length(omega_input), 1, i);
+    plot(t, y);
+    title(['Response for Input Frequency = ', num2str(omega)]);
+    xlabel('Time (s)');
+    ylabel('Displacement (m)');
+    legendInfo{i} = ['\omega_{input} = ', num2str(omega)];
+end
+
+% Overall plot adjustments
+subplot(length(omega_input), 1, 1);
+legend(legendInfo);
