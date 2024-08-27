@@ -22,8 +22,12 @@ t_steps = linspace(0, 50, steps + 1);
 
 % Initialize figure
 figure;
+hold on;
+title('Dynamic Response of Harmonic Oscillator to Varying Input Frequencies');
+xlabel('Time (s)');
+ylabel('Displacement (m)');
 
-% Loop through each time segment
+% Loop through each time segment for animation
 for j = 1:steps
     % Define the current time segment
     t_segment = t(t >= t_steps(j) & t < t_steps(j + 1));
@@ -40,13 +44,11 @@ for j = 1:steps
     y_segment = lsim(sys, F_segment, t_segment);
 
     % Plot the response for the current segment
-    plot(t_segment, y_segment);
-    hold on;
+    plot(t_segment, y_segment, 'DisplayName', ['\omega_{input} = ', num2str(current_omega)]);
+    drawnow;
+    pause(1); % Pause to create the animation effect
 end
 
-% Overall plot adjustments
-title('Response of Harmonic Oscillator to Varying Input Frequencies');
-xlabel('Time (s)');
-ylabel('Displacement (m)');
-legend(arrayfun(@(x) ['\omega_{input} (', num2str(x), ')'], omega, 'UniformOutput', false));
+% Legend
+legend show;
 hold off;
